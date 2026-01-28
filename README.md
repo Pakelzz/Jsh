@@ -3,13 +3,19 @@ Jsh is a CLI application used to display prayer schedules for Indonesia.
 
 ## How To Use 
 Display prayer schedules with name of city
-`jsh malang`
+```
+jsh malang
+```
 
 Display prayer schedules with TUI
-`jsh --list`
+```
+jsh --list
+```
 
 Display prayer schedules with id of city (To search id use jsh TUI)
-`jsh --id 1001`
+```
+jsh --id 1001
+```
 
 ## Installation
 There is no installation yet ...
