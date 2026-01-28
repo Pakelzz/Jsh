@@ -12,7 +12,7 @@ Display prayer schedules with TUI
 jsh --list
 ```
 
-Display prayer schedules with id of city (To search id use jsh TUI)
+Display prayer schedules with id of city (To search id use jsh --list)
 ```
 jsh --id 1001
 ```
