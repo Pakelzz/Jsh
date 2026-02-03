@@ -1,11 +1,11 @@
 use crate::{
-    api::{get_all_city, get_city},
+    api::{get_city},
     helper::{output, update_client},
     models::Client,
     utils::{clear_line, spinner_loop},
 };
 
-pub async fn run(input: &str, time: String) {
+pub async fn run(input: &str, time: String, make_default: bool) {
     let result = tokio::select! {
         res = get_city(input) => res,
         _ = spinner_loop("Loading get city ") => unreachable!(),
@@ -19,35 +19,14 @@ pub async fn run(input: &str, time: String) {
 
     clear_line(0, 0);
 
-    output(client, &time).await;
+    output(client, &time, make_default).await;
 }
 
-pub async fn run_by_id(id: u16, time: String) {
+pub async fn run_by_id(id: u16, time: String, make_default: bool) {
     let client = Client {
         id: Some(id.to_string()),
         is_multiple: false
     };
 
-    output(client, &time).await
+    output(client, &time, make_default).await
 }
-
-pub async fn _list() {
-    let result = tokio::select! {
-        res = get_all_city() => res,
-        _ = spinner_loop("Loading list all possible city ") => unreachable!(),
-    };
-
-    match result {
-        Ok(resp) => {
-            resp.data.iter().for_each(|f| {
-                for i in f {
-                    println!("ID: {} - {}", i.id, i.lokasi);
-                }
-            });
-        }
-        Err(e) => {
-            println!("Error: {e}");
-        }
-    }
-}
-

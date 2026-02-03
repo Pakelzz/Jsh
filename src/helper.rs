@@ -1,7 +1,7 @@
 use std::io::stdout;
 use std::fmt::Write;
 
-use crate::{api::get_jadwal, models::{ApiResponse, Client}, print::print_jadwal, utils::{clear_line, is_multiple_city, spinner_loop}};
+use crate::{api::get_jadwal, models::{ApiResponse, Client}, print::print_jadwal, storage::write_config, utils::{clear_line, is_multiple_city, spinner_loop}};
 
 
 pub fn update_client(client: &mut Client, result: Result<ApiResponse, Box<dyn std::error::Error>>) {
@@ -36,10 +36,10 @@ pub fn update_client(client: &mut Client, result: Result<ApiResponse, Box<dyn st
     }
 }
 
-pub async fn output(client: Client, time: &str) {
+pub async fn output(client: Client, time: &str, make_default: bool) {
     if let Some(city_id) = client.id {
         let result = tokio::select! {
-            res = get_jadwal(&city_id, &time) => res,
+            res = get_jadwal(&city_id, time) => res,
             _ = spinner_loop("Loading prayer schedule ") => unreachable!(),
         };
 
@@ -50,9 +50,12 @@ pub async fn output(client: Client, time: &str) {
                 match jadwal_response.data {
                     Some(jadwal) => {
                         print_jadwal(jadwal, client.is_multiple);
+                        if make_default {
+                            write_config(city_id);
+                        }
                     }
                     None => {
-                        println!("Please insert a valid value");
+                        eprintln!("Please insert a valid value");
                     }
                 }
             }
