@@ -24,8 +24,16 @@ async fn main() -> std::io::Result<()> {
         run_by_id(city_id, time::now(), cli.default).await
     } else if cli.list {
         let mut terminal = ratatui::init();
-        App::new().await.unwrap().run(&mut terminal)?;
-        ratatui::restore();
+        match App::new().await {
+            Ok(mut app) => {
+                app.run(&mut terminal)?;
+                ratatui::restore();
+            },
+            Err(e) => {
+                ratatui::restore();
+                eprintln!("Error: {e}");
+            }
+        };
     } else {
         let default_config = read_config();
         if default_config == 0 {
