@@ -300,7 +300,7 @@ impl App {
 
                             let id = j.id.clone();
                             if self.make_default {
-                                write_config(id.clone());
+                                write_config(&id);
                             }
 
                             tokio::spawn(async move {
@@ -344,7 +344,7 @@ impl App {
 
                             let id = j.id.clone();
                             if self.make_default {
-                                write_config(id.clone());
+                                write_config(&id);
                             }
                             
 
