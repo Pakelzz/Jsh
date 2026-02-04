@@ -2,7 +2,7 @@ use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{DefaultTerminal, Frame, layout::{Constraint, HorizontalAlignment, Layout}, style::{Color, Style}, symbols::border, text::{Line, Span, Text}, widgets::{Block, Borders, List, ListItem, ListState, Paragraph}};
 use tokio::sync::mpsc::{Receiver, error::TryRecvError};
 
-use crate::{api::{get_all_city, get_jadwal2}, models::{Jadwal, JadwalResponse, Kota}, time, utils::{clear_line, spinner_loop}};
+use crate::{api::{get_all_city, get_jadwal2}, models::{Jadwal, JadwalResponse, Kota}, storage::write_config, time, utils::{clear_line, spinner_loop}};
 
 pub enum Commands {
     Normal,
@@ -15,6 +15,7 @@ pub struct App {
     jadwal_rx: Option<Receiver<JadwalResponse>>,
     jadwal: Option<Jadwal>,
     enter: bool,
+    make_default: bool,
     state: ListState,
     command: Commands,
     input: String,
@@ -22,7 +23,7 @@ pub struct App {
 }
 
 impl App {
-    pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn new(make_default: bool) -> Result<Self, Box<dyn std::error::Error>> {
         let result = tokio::select! {
             res = get_all_city() => res,
             _ = spinner_loop("Loading list all possible city ") => unreachable!(),
@@ -49,6 +50,7 @@ impl App {
             jadwal_rx: None,
             jadwal: None,
             enter: false,
+            make_default,
             state,
             command: Commands::Normal,
             input: String::new(),
@@ -289,20 +291,23 @@ impl App {
                     },
                     KeyCode::Esc => self.exit = true,
                     KeyCode::Enter => {
-                        if let Some(i) = self.state.selected() {
-                            if let Some(j) = self.items.get(i) {
-                                let (tx, rx) = tokio::sync::mpsc::channel(1);
-                                self.jadwal_rx = Some(rx);
-                                self.enter = true;
+                        if let Some(i) = self.state.selected() 
+                            && let Some(j) = self.items.get(i)
+                        {
+                            let (tx, rx) = tokio::sync::mpsc::channel(1);
+                            self.jadwal_rx = Some(rx);
+                            self.enter = true;
 
-                                let id = j.id.clone();
+                            let id = j.id.clone();
+                            if self.make_default {
+                                write_config(id.clone());
+                            }
 
-                                tokio::spawn(async move {
-                                    if let Ok(x) = get_jadwal2(id, time::now()).await {
-                                        let _ = tx.send(x).await;
-                                    }
-                                });
-                            } 
+                            tokio::spawn(async move {
+                                if let Ok(x) = get_jadwal2(id, time::now()).await {
+                                    let _ = tx.send(x).await;
+                                }
+                            });
                         }
                     },
                     _ => {}
@@ -330,20 +335,24 @@ impl App {
                     KeyCode::Down => self.next(),
                     KeyCode::Up => self.prev(),
                     KeyCode::Enter => {
-                        if let Some(i) = self.state.selected() {
-                            if let Some(j) = self.filter.get(i) {
-                                let (tx, rx) = tokio::sync::mpsc::channel(1);
-                                self.jadwal_rx = Some(rx);
-                                self.enter = true;
+                        if let Some(i) = self.state.selected() 
+                            && let Some(j) = self.filter.get(i)
+                        {
+                            let (tx, rx) = tokio::sync::mpsc::channel(1);
+                            self.jadwal_rx = Some(rx);
+                            self.enter = true;
 
-                                let id = j.id.clone();
+                            let id = j.id.clone();
+                            if self.make_default {
+                                write_config(id.clone());
+                            }
+                            
 
-                                tokio::spawn(async move {
-                                    if let Ok(x) = get_jadwal2(id, time::now()).await {
-                                        let _ = tx.send(x).await;
-                                    }
-                                });
-                            } 
+                            tokio::spawn(async move {
+                                if let Ok(x) = get_jadwal2(id, time::now()).await {
+                                    let _ = tx.send(x).await;
+                                }
+                            });
                         }
                     },
                     _ => {}
@@ -353,12 +362,11 @@ impl App {
     }
 
     fn handle_events(&mut self) -> std::io::Result<()> {
-        if event::poll(std::time::Duration::from_millis(200))? {
-            if let Event::Key(key) = event::read()? {
-                if key.kind == KeyEventKind::Press {
+        if event::poll(std::time::Duration::from_millis(200))? 
+            && let Event::Key(key) = event::read()?
+                && key.kind == KeyEventKind::Press
+        {
                     self.handle_key(key.code);
-                }
-            }
         }
         Ok(())
     }
