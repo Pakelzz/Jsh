@@ -24,7 +24,7 @@ async fn main() -> std::io::Result<()> {
         run_by_id(city_id, time::now(), cli.default).await
     } else if cli.list {
         let mut terminal = ratatui::init();
-        match App::new().await {
+        match App::new(cli.default).await {
             Ok(mut app) => {
                 app.run(&mut terminal)?;
                 ratatui::restore();
