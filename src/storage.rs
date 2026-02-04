@@ -12,7 +12,7 @@ pub struct City {
     id: u16
 }
 
-pub fn write_config(id: String) {
+pub fn write_config(id: &str) {
     if let Some(mut conf) = dirs::config_dir() {
         conf.push("jsh");
 
