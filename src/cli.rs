@@ -17,7 +17,7 @@ pub struct Cli {
     pub id: Option<u16>,
 
     /// to make selected city default
-    /// Example: jsh --id 1001 -d, jsh malang -d
+    /// Example: jsh --id 1001 -d, jsh malang -d, jsh --list -d 
     #[arg(long, short)]
     pub default: bool,
 }
