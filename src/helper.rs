@@ -7,12 +7,12 @@ use crate::{api::get_jadwal, models::{ApiResponse, Client}, print::print_jadwal,
 pub fn update_client(client: &mut Client, result: Result<ApiResponse, Box<dyn std::error::Error>>) {
     match result {
         Ok(response) => {
-            while let Some(city) = &response.data {
+            if let Some(city) = &response.data {
                 if is_multiple_city(city) {
                     let mut output = String::new();
-                    write!(output, " ID      Lokasi\n").unwrap();
+                    writeln!(output, " ID      Lokasi").unwrap();
                     city.iter().for_each(|f| {
-                        write!(output, "{}: {}\n", f.id, f.lokasi).unwrap();
+                        writeln!(output, "{}: {}", f.id, f.lokasi).unwrap();
                     });
 
                     write!(output, "Insert ID city: ").unwrap();
@@ -27,7 +27,6 @@ pub fn update_client(client: &mut Client, result: Result<ApiResponse, Box<dyn st
                 } else {
                     client.id = Some(city[0].id.to_string());
                 }
-                break;
             }
         }
         Err(_) => {
@@ -51,7 +50,7 @@ pub async fn output(client: Client, time: &str, make_default: bool) {
                     Some(jadwal) => {
                         print_jadwal(jadwal, client.is_multiple);
                         if make_default {
-                            write_config(city_id);
+                            write_config(&city_id);
                         }
                     }
                     None => {
