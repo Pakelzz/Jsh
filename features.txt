@@ -1,0 +1,2 @@
+PR selanjutnya adalah membuat bagaimana output yang dihasilkan bersih dari clear_line dan juga dapat digunakan
+untuk kebutuhan scripting di linux

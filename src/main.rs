@@ -19,9 +19,9 @@ mod storage;
 async fn main() -> std::io::Result<()> {
     let cli = Cli::parse();
     if let Some(city) = cli.name {
-        run(&city, time::now(), cli.default).await;
+        run(&city, time::now(), cli.default, false).await;
     } else if let Some(city_id) = cli.id {
-        run_by_id(city_id, time::now(), cli.default).await
+        run_by_id(city_id, time::now(), cli.default, cli.simple).await;
     } else if cli.list {
         let mut terminal = ratatui::init();
         match App::new(cli.default).await {
@@ -30,7 +30,7 @@ async fn main() -> std::io::Result<()> {
                 ratatui::restore();
             },
             Err(e) => {
-                ratatui::restore();
+        ratatui::restore();
                 eprintln!("Error: {e}");
             }
         };
@@ -39,7 +39,7 @@ async fn main() -> std::io::Result<()> {
         if default_config == 0 {
             println!("You have no config yet");
         } else {
-            run_by_id(default_config, time::now(), false).await;
+            run_by_id(default_config, time::now(), false, cli.simple).await;
         }
     }
 

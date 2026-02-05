@@ -26,6 +26,6 @@ pub fn clear_line(x: u16, y: u16) {
 
 // Cek kota atau kabupaten yang tersedia
 // Apakah lebih dari 2 atau tidak
-pub fn is_multiple_city(city: &Vec<Kota>) -> bool {
+pub fn is_multiple_city(city: &[Kota]) -> bool {
     city.len() > 2
 }

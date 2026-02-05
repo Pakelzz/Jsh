@@ -35,12 +35,22 @@ pub fn update_client(client: &mut Client, result: Result<ApiResponse, Box<dyn st
     }
 }
 
-pub async fn output(client: Client, time: &str, make_default: bool) {
+pub async fn output(client: Client, time: &str, make_default: bool, simple: bool) {
     if let Some(city_id) = client.id {
-        let result = tokio::select! {
-            res = get_jadwal(&city_id, time) => res,
-            _ = spinner_loop("Loading prayer schedule ") => unreachable!(),
+
+        let result = if simple {
+                get_jadwal(&city_id, time).await
+            } else {
+                tokio::select! {
+                    res = get_jadwal(&city_id, time) => res,
+                    _ = spinner_loop("Loading prayer schedule ") => unreachable!(),
+                }
         };
+
+        // let result = tokio::select! {
+        //     res = get_jadwal(&city_id, time) => res,
+        //     _ = spinner_loop("Loading prayer schedule ") => unreachable!(),
+        // };
 
         clear_line(0, 0);
         

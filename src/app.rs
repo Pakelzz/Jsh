@@ -5,7 +5,7 @@ use crate::{
     utils::{clear_line, spinner_loop},
 };
 
-pub async fn run(input: &str, time: String, make_default: bool) {
+pub async fn run(input: &str, time: String, make_default: bool, simple: bool) {
     let result = tokio::select! {
         res = get_city(input) => res,
         _ = spinner_loop("Loading get city ") => unreachable!(),
@@ -19,14 +19,14 @@ pub async fn run(input: &str, time: String, make_default: bool) {
 
     clear_line(0, 0);
 
-    output(client, &time, make_default).await;
+    output(client, &time, make_default, simple).await;
 }
 
-pub async fn run_by_id(id: u16, time: String, make_default: bool) {
+pub async fn run_by_id(id: u16, time: String, make_default: bool, simple: bool) {
     let client = Client {
         id: Some(id.to_string()),
         is_multiple: false
     };
 
-    output(client, &time, make_default).await
+   output(client, &time, make_default, simple).await
 }
