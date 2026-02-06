@@ -51,19 +51,19 @@ pub fn write_config(id: &str) {
     }
 }
 
-pub fn read_config() -> u16 {
+pub fn read_config() -> Result<u16, Box<dyn std::error::Error>> {
     if let Some(mut conf) = dirs::config_dir() {
         conf.push("jsh");
         let jsh_config = conf.join("jsh.toml");
 
         if !jsh_config.exists() {
-            0
+            Ok(0)
         } else {
-            let content = fs::read_to_string(jsh_config).expect("Error: Can't read config");
-            let config: Config = toml::from_str(&content).expect("Error: Can't parse config");
-            config.city.id
+            let content = fs::read_to_string(jsh_config)?;
+            let config: Config = toml::from_str(&content)?;
+            Ok(config.city.id)
         }
     } else {
-        0
+        Ok(0)
     }
 }
