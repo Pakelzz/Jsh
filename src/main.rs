@@ -37,11 +37,21 @@ async fn main() -> std::io::Result<()> {
         };
     } else {
         let default_config = read_config();
-        if default_config == 0 {
-            println!("You have no config yet");
-        } else {
-            run_by_id(default_config, time::now(), false, cli.simple).await;
-        }
+        match default_config {
+            Ok(id) => {
+                if id == 0 {
+                    eprintln!("You have no config yet");
+                } else {
+                    run_by_id(id, time::now(), false, cli.simple).await;
+                }
+            },
+            Err(e) => eprintln!("Error: {e}")
+        };
+        // if default_config == 0 {
+        //     println!("You have no config yet");
+        // } else {
+        //     run_by_id(default_config, time::now(), false, cli.simple).await;
+        // }
     }
 
     Ok(())
