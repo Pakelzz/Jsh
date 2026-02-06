@@ -14,6 +14,7 @@ mod time;
 mod ui;
 mod utils;
 mod storage;
+mod error;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {

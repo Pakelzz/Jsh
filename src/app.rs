@@ -25,7 +25,8 @@ pub async fn run(input: &str, time: String, make_default: bool, simple: bool) {
 pub async fn run_by_id(id: u16, time: String, make_default: bool, simple: bool) {
     let client = Client {
         id: Some(id.to_string()),
-        is_multiple: false
+        is_multiple: false,
+        error: None
     };
 
    output(client, &time, make_default, simple).await

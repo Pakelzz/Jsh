@@ -38,5 +38,6 @@ pub struct Sholat {
 #[derive(Debug, Default)]
 pub struct Client {
     pub id: Option<String>,
-    pub is_multiple: bool
+    pub is_multiple: bool,
+    pub error: Option<String>
 }

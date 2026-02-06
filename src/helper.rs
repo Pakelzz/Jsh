@@ -1,10 +1,10 @@
 use std::io::stdout;
 use std::fmt::Write;
 
-use crate::{api::get_jadwal, models::{ApiResponse, Client}, print::print_jadwal, storage::write_config, utils::{clear_line, is_multiple_city, spinner_loop}};
+use crate::{api::get_jadwal, error::ApiError, models::{ApiResponse, Client}, print::print_jadwal, storage::write_config, utils::{clear_line, is_multiple_city, spinner_loop}};
 
 
-pub fn update_client(client: &mut Client, result: Result<ApiResponse, Box<dyn std::error::Error>>) {
+pub fn update_client(client: &mut Client, result: Result<ApiResponse, ApiError>) {
     match result {
         Ok(response) => {
             if let Some(city) = &response.data {
@@ -29,14 +29,20 @@ pub fn update_client(client: &mut Client, result: Result<ApiResponse, Box<dyn st
                 }
             }
         }
-        Err(_) => {
+        Err(e) => {
             client.id = None;
+            match e {
+                ApiError::Reqwest(e) => client.error = Some(format!("Error: {}", e).to_string()),
+                ApiError::Parse(e) => client.error = Some(format!("Error: {}", e).to_string()),
+            }
         }
     }
 }
 
 pub async fn output(client: Client, time: &str, make_default: bool, simple: bool) {
-    if let Some(city_id) = client.id {
+    if let Some(error) = client.error {
+        eprintln!("{error}");
+    } else if let Some(city_id) = client.id {
 
         let result = if simple {
                 get_jadwal(&city_id, time).await
