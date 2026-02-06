@@ -52,13 +52,10 @@ pub async fn output(client: Client, time: &str, make_default: bool, simple: bool
                     _ = spinner_loop("Loading prayer schedule ") => unreachable!(),
                 }
         };
-
-        // let result = tokio::select! {
-        //     res = get_jadwal(&city_id, time) => res,
-        //     _ = spinner_loop("Loading prayer schedule ") => unreachable!(),
-        // };
-
-        clear_line(0, 0);
+        
+        if !simple {
+            clear_line(0, 0);
+        }
         
         match result {
             Ok(jadwal_response) => {
